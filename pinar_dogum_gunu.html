@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>İyi ki Doğdun Pınar 🎂</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --pink:#ff6eb4;--yellow:#ffe066;--blue:#6ec6ff;
+    --purple:#c77dff;--green:#5effa0;--orange:#ffaa5e;
+  }
+  body{
+    background:#0d0d1a;
+    min-height:100vh;
+    font-family:'Nunito',sans-serif;
+    overflow-x:hidden;
+  }
+
+  /* STARS */
+  .stars{position:fixed;inset:0;pointer-events:none;z-index:0;}
+  .star{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--d,3s) ease-in-out infinite;opacity:0;}
+  @keyframes twinkle{0%,100%{opacity:0;}50%{opacity:var(--op,0.8);}}
+
+  /* BALLOON CANVAS */
+  #balloon-canvas{position:fixed;inset:0;pointer-events:none;z-index:1;}
+
+  /* WELCOME PAGE */
+  #welcome-page{
+    position:relative;z-index:10;
+    min-height:100vh;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    text-align:center;padding:20px;
+  }
+  .greeting{
+    font-family:'Pacifico',cursive;
+    font-size:clamp(32px,8vw,80px);
+    background:linear-gradient(135deg,var(--yellow),var(--pink),var(--purple),var(--blue));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;line-height:1.2;
+    animation:popIn 0.8s cubic-bezier(0.175,0.885,0.32,1.275) both;
+    filter:drop-shadow(0 4px 24px rgba(255,110,180,0.35));
+  }
+  .greeting span{display:block;}
+  @keyframes popIn{
+    from{opacity:0;transform:scale(0.4) rotate(-8deg);}
+    to{opacity:1;transform:scale(1) rotate(0deg);}
+  }
+  .emojis{
+    font-size:clamp(24px,5vw,48px);
+    margin:18px 0;letter-spacing:6px;
+    animation:popIn 0.8s 0.2s cubic-bezier(0.175,0.885,0.32,1.275) both;
+  }
+  .question{
+    font-size:clamp(18px,4vw,30px);
+    font-weight:900;color:#fff;
+    margin-top:32px;margin-bottom:24px;
+    animation:fadeUp 0.7s 0.5s ease both;
+    text-shadow:0 2px 12px rgba(0,0,0,0.5);
+  }
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+  .btns{
+    display:flex;gap:20px;flex-wrap:wrap;justify-content:center;
+    animation:fadeUp 0.7s 0.7s ease both;
+  }
+  .btn{
+    font-family:'Nunito',sans-serif;
+    font-size:clamp(16px,3vw,26px);
+    font-weight:900;border:none;border-radius:60px;
+    padding:14px 48px;cursor:pointer;
+    transition:transform 0.15s ease,box-shadow 0.15s ease;
+    letter-spacing:1px;position:relative;overflow:hidden;
+  }
+  .btn::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.18);opacity:0;transition:opacity 0.2s;}
+  .btn:hover::after{opacity:1;}
+  .btn:active{transform:scale(0.96)!important;}
+  .btn-yes{
+    background:linear-gradient(135deg,var(--green),#00e676);
+    color:#0a2a0a;box-shadow:0 6px 28px rgba(94,255,160,0.45);
+  }
+  .btn-yes:hover{transform:scale(1.07);box-shadow:0 10px 40px rgba(94,255,160,0.6);}
+  .btn-no{
+    background:linear-gradient(135deg,#ff5e5e,#ff2d6b);
+    color:#fff;box-shadow:0 6px 28px rgba(255,45,107,0.4);
+    transition:all 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
+  }
+  .btn-no:hover{transform:scale(1.07);}
+
+  /* TRANSITION OVERLAY */
+  #transition-overlay{
+    position:fixed;inset:0;z-index:100;
+    background:linear-gradient(135deg,#0d0d1a,#1a0a2e,#0d0d1a);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;transition:opacity 0.6s ease;
+  }
+  #transition-overlay.show{opacity:1;pointer-events:all;}
+  #transition-overlay p{
+    font-family:'Pacifico',cursive;
+    font-size:clamp(28px,7vw,64px);
+    background:linear-gradient(135deg,var(--yellow),var(--pink));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;text-align:center;padding:0 20px;
+    animation:popIn 0.6s ease both;
+  }
+  #transition-overlay .sub{
+    font-family:'Nunito',sans-serif;
+    font-size:clamp(14px,3vw,22px);
+    color:rgba(255,255,255,0.55);
+    margin-top:12px;font-weight:700;
+    -webkit-text-fill-color:unset;background:none;
+    animation:fadeUp 0.6s 0.3s ease both;
+  }
+
+  /* CONFETTI */
+  .confetti-piece{
+    position:fixed;width:10px;height:10px;
+    border-radius:2px;pointer-events:none;z-index:200;
+    animation:confettiFall var(--dur,1.2s) ease-out both;
+  }
+  @keyframes confettiFall{
+    from{transform:translate(0,0) rotate(0deg);opacity:1;}
+    to{transform:translate(var(--dx,0px),var(--dy,200px)) rotate(var(--rot,360deg));opacity:0;}
+  }
+
+  /* CASSETTES PAGE */
+  #cassettes-page{
+    display:none;
+    position:relative;z-index:10;
+    min-height:100vh;
+  }
+
+  @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+  ::-webkit-scrollbar{width:5px;}
+  ::-webkit-scrollbar-track{background:#111;}
+  ::-webkit-scrollbar-thumb{background:#2e2e2e;border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- Stars -->
+<div class="stars" id="stars"></div>
+<canvas id="balloon-canvas"></canvas>
+
+<!-- WELCOME PAGE -->
+<div id="welcome-page">
+  <div class="greeting">
+    <span>İyi ki Doğdun</span>
+    <span>Pınar! 🎂</span>
+  </div>
+  <div class="emojis">🎂🎁✨🎈🥳</div>
+  <div class="question" id="question">Bugün müzik dinlemek ister misin?</div>
+  <div class="btns" id="btns">
+    <button class="btn btn-yes" id="btn-yes" onclick="handleYes()">Evet 🎵</button>
+    <button class="btn btn-no" id="btn-no" onclick="handleNo()">Hayır 😅</button>
+  </div>
+</div>
+
+<!-- TRANSITION OVERLAY -->
+<div id="transition-overlay">
+  <p>Harika! 🎵<br/>Kasetlere gidiyoruz...</p>
+  <div class="sub">Hazır mısın?</div>
+</div>
+
+<!-- CASSETTES PAGE (React renders here) -->
+<div id="cassettes-page">
+  <div id="root"></div>
+</div>
+
+<script>
+// ── STARS ──
+const starsEl = document.getElementById('stars');
+for(let i=0;i<120;i++){
+  const s=document.createElement('div');
+  s.className='star';
+  const size=Math.random()*3+1;
+  s.style.cssText=`width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${2+Math.random()*4}s;--op:${0.4+Math.random()*0.6};animation-delay:${Math.random()*5}s`;
+  starsEl.appendChild(s);
+}
+
+// ── BALLOONS ──
+const canvas=document.getElementById('balloon-canvas');
+const ctx=canvas.getContext('2d');
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;});
+const BCOLORS=['#ff6eb4','#ffe066','#6ec6ff','#c77dff','#5effa0','#ffaa5e','#ff5e5e','#7affdb'];
+class Balloon{
+  constructor(){this.reset(true);}
+  reset(init=false){
+    this.x=Math.random()*canvas.width;
+    this.y=init?Math.random()*canvas.height:canvas.height+80;
+    this.vy=-(0.6+Math.random()*1.1);
+    this.vx=(Math.random()-0.5)*0.4;
+    this.r=22+Math.random()*26;
+    this.color=BCOLORS[Math.floor(Math.random()*BCOLORS.length)];
+    this.phase=Math.random()*Math.PI*2;
+    this.wobble=Math.random()*0.04+0.02;
+    this.opacity=0.82+Math.random()*0.18;
+  }
+  update(){
+    this.y+=this.vy;
+    this.x+=this.vx+Math.sin(this.phase)*0.5;
+    this.phase+=this.wobble;
+    if(this.y<-this.r*2)this.reset();
+  }
+  draw(){
+    ctx.save();ctx.globalAlpha=this.opacity;
+    ctx.beginPath();
+    ctx.ellipse(this.x,this.y,this.r*0.85,this.r,0,0,Math.PI*2);
+    ctx.fillStyle=this.color;ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(this.x-this.r*0.25,this.y-this.r*0.3,this.r*0.22,this.r*0.16,Math.PI*-0.3,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,255,255,0.35)';ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(this.x,this.y+this.r);
+    ctx.lineTo(this.x-3,this.y+this.r+6);
+    ctx.lineTo(this.x+3,this.y+this.r+6);
+    ctx.closePath();ctx.fillStyle=this.color;ctx.fill();
+    ctx.beginPath();ctx.moveTo(this.x,this.y+this.r+6);
+    ctx.quadraticCurveTo(this.x+8,this.y+this.r+40,this.x,this.y+this.r+70);
+    ctx.strokeStyle='rgba(255,255,255,0.25)';ctx.lineWidth=1;ctx.stroke();
+    ctx.restore();
+  }
+}
+const balloons=Array.from({length:22},()=>new Balloon());
+function animBalloons(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  balloons.forEach(b=>{b.update();b.draw();});
+  requestAnimationFrame(animBalloons);
+}
+animBalloons();
+
+// ── NO LOGIC ──
+const noMsgs=[
+  'Bugün müzik dinlemek ister misin? 🤔',
+  'Gerçekten hayır mı? 😮',
+  'Emin misin? 🎸',
+  'Son şans... 🎵',
+  'Tamam, ben karar veriyorum 😈',
+];
+let noCount=0;
+const noBtn=document.getElementById('btn-no');
+const yesBtn=document.getElementById('btn-yes');
+
+function handleNo(){
+  noCount++;
+  if(noCount>=5){
+    noBtn.style.transition='all 0.4s ease';
+    noBtn.style.opacity='0';
+    noBtn.style.transform='scale(0)';
+    setTimeout(()=>{noBtn.style.display='none';},400);
+    yesBtn.style.transition='all 0.5s cubic-bezier(0.175,0.885,0.32,1.275)';
+    yesBtn.style.fontSize='clamp(24px,6vw,52px)';
+    yesBtn.style.padding='22px 80px';
+    yesBtn.style.boxShadow='0 0 60px rgba(94,255,160,0.8), 0 12px 40px rgba(0,0,0,0.4)';
+    yesBtn.textContent='Evet 🎵';
+    document.getElementById('question').textContent='Tamam tamam... 😂 Evet!';
+  } else {
+    const fs=16+noCount*4;
+    const pad=14+noCount*3;
+    noBtn.style.fontSize=fs+'px';
+    noBtn.style.padding=`${pad}px ${pad*3.2}px`;
+    noBtn.textContent='Hayır 😅';
+    const yesScale=1+noCount*0.06;
+    yesBtn.style.transform=`scale(${yesScale})`;
+    document.getElementById('question').textContent=noMsgs[Math.min(noCount-1,noMsgs.length-1)];
+  }
+}
+
+function handleYes(){
+  const colors=['#ff6eb4','#ffe066','#6ec6ff','#c77dff','#5effa0','#ffaa5e'];
+  for(let i=0;i<60;i++){
+    const c=document.createElement('div');
+    c.className='confetti-piece';
+    c.style.cssText=`left:${40+Math.random()*20}%;top:50%;background:${colors[Math.floor(Math.random()*colors.length)]};--dx:${(Math.random()-0.5)*600}px;--dy:${(Math.random()-0.5)*600}px;--rot:${Math.random()*720}deg;--dur:${0.8+Math.random()*0.8}s;`;
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),1600);
+  }
+  document.getElementById('transition-overlay').classList.add('show');
+  setTimeout(()=>{
+    document.getElementById('welcome-page').style.display='none';
+    document.getElementById('transition-overlay').classList.remove('show');
+    document.getElementById('cassettes-page').style.display='block';
+    // React'ı başlat
+    if(!window._reactStarted){
+      window._reactStarted=true;
+      // Trigger babel render
+      document.getElementById('react-app-script').type='text/babel-activated';
+    }
+  },2200);
+}
+</script>
+
+<!-- React App — activated after transition -->
+<script id="react-app-script" type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const SONG_POOLS = {
+  1: [ // Sabah Kaseti
+    { title:"Senden İyi Yok", artist:"Sezen Aksu", note:"Türk pop'unun kraliçesinden bir sabah enerjisi — güne en güzel başlangıç." },
+    { title:"Levitating", artist:"Dua Lipa", note:"Uçar gibi, parlak ve cıvıl cıvıl — tam sabah hissi." },
+    { title:"Hepsi Geçer", artist:"Sıla", note:"Her şey güzel olacak diyen bir ses — sabahları dinlemek için biçilmiş kaftan." },
+    { title:"Good as Hell", artist:"Lizzo", note:"Kahveden önce başını kaldıran saf bir sabah özgüveni." },
+    { title:"Beni Bırakma", artist:"Hadise", note:"Enerjisi sabah koşusunun bile önüne geçen bir Türk pop klasiği." },
+    { title:"Blinding Lights", artist:"The Weeknd", note:"O synth dalgası sabah yolculuğunu film sahnesine dönüştürür." },
+    { title:"Kollarımda Büyü Var", artist:"Sezen Aksu", note:"Büyülü, sıcak ve seni güne hazırlayan bir hit." },
+    { title:"Watermelon Sugar", artist:"Harry Styles", note:"Yaz sabahı gibi tatlı, esintili ve taze." },
+    { title:"Yalnız Çiçek", artist:"Sıla", note:"İçini ısıtan o melodi sabahları çok daha güzel yapıyor." },
+    { title:"Happy", artist:"Pharrell Williams", note:"Bunu duyunca gülümsememek imkânsız — sabahlar onaylı." },
+    { title:"Olmaz Olsun", artist:"Gülşen", note:"Hayata meydan okuyan enerjisiyle sabah için mükemmel." },
+    { title:"Here Comes the Sun", artist:"The Beatles", note:"Güneşin verebildiği en sıcak selamlama." },
+    { title:"Flowers", artist:"Miley Cyrus", note:"Kendine iyi bakmayı anlatan enerjik bir pop parçası — sabah motivasyonu." },
+    { title:"Anti-Hero", artist:"Taylor Swift", note:"Taylor'ın en büyük hitlerinden — sabahı eğlenceli kılan kancasıyla." },
+    { title:"Taş", artist:"Gülşen", note:"Gülşen'in en sevilen şarkılarından biri — sabah enerjisini tavan yapar." },
+  ],
+  2: [ // Gece Düşünceleri
+    { title:"Yüreğim", artist:"Sezen Aksu", note:"Gece yarısı kalbine bakan bir şarkı — derin ve dürüst." },
+    { title:"Holocene", artist:"Bon Iver", note:"Uçsuz bucaksız, sessiz ve kişisel — gece geç yansımalar için." },
+    { title:"Düşler ve Umutlar", artist:"Teoman", note:"Teoman'ın sesi gece tenhalığında farklı bir şey hissettiriyor." },
+    { title:"Retrograde", artist:"James Blake", note:"Saat 2'deki şehir gibi hissettiren elektronik kalp ağrısı." },
+    { title:"Gülümse", artist:"Sıla", note:"Kırılgan ama umutlu — tam geceyi kapatmadan önce için." },
+    { title:"Pink Moon", artist:"Nick Drake", note:"Seyrek, narin ve zamansız — lamba ışığında." },
+    { title:"Bir Ömür", artist:"Teoman", note:"Bir ömrü anlatan bu şarkı gece daha da derine iniyor." },
+    { title:"Outro", artist:"M83", note:"Sekiz dakika yükselen duygu — seni tamamen sarsın." },
+    { title:"Bu Gece", artist:"Hande Yener", note:"Geceyi kendine mal eden o ses ve o ritim." },
+    { title:"The Sound of Silence", artist:"Simon & Garfunkel", note:"Eski dost karanlık — sessiz gecelerin zamansız yoldaşı." },
+    { title:"Seni Gidi Seni", artist:"Sezen Aksu", note:"Sevgili Sezen — geceleri en çok konuşan şarkılardan biri." },
+    { title:"Midnight Rain", artist:"Taylor Swift", note:"Geceyle gelen o özgürlük hissi — tam gece düşünceler için." },
+    { title:"Geceler", artist:"Hadise", note:"Türk pop'unun en çok dinlenen gece şarkılarından biri." },
+    { title:"Suffer", artist:"Charlie Puth", note:"Gece geç saatlerde çalan türden — duygusal ama güçlü." },
+  ],
+  3: [ // Yürüyüş Kaseti
+    { title:"Paramparça", artist:"Sıla", note:"Adımlarının ritmine o kadar uyuyor ki fark etmeden hızlanırsın." },
+    { title:"Running Up That Hill", artist:"Kate Bush", note:"Farkında olmadan daha hızlı yürürsün — bu şarkının gücü bu." },
+    { title:"Beni Bul", artist:"Gülşen", note:"Enerjik, güçlü ve her adımı anlamlı kılan bir Türk pop hiti." },
+    { title:"Can't Stop the Feeling!", artist:"Justin Timberlake", note:"Bacaklarının kendiliğinden hareket ettiği bir şarkı." },
+    { title:"Deli", artist:"Hande Yener", note:"Deli gibi dans ettiren ritmiyle yürüyüşü eğlenceye çevirir." },
+    { title:"Pompeii", artist:"Bastille", note:"Büyük bir güç — yürüyüşü yolculuğa dönüştürür." },
+    { title:"Şımarık", artist:"Tarkan", note:"O kıvrak ritim — yürürken bile dans etmek istiyorsun." },
+    { title:"September", artist:"Earth Wind & Fire", note:"Her adımı ritimli ve anlamlı hissettiren o groove." },
+    { title:"Aşkın Olayım", artist:"Sezen Aksu", note:"Enerjik Sezen — adımların kendiliğinden atıyor." },
+    { title:"As It Was", artist:"Harry Styles", note:"Yürürken içini açan, ritmi seni sürükleyen bir pop hiti." },
+    { title:"Espresso", artist:"Sabrina Carpenter", note:"2024'ün en eğlenceli pop şarkısı — adımların kendiliğinden atıyor." },
+    { title:"Gel", artist:"Gülşen", note:"Türk pop'unun en enerjik davetlerinden biri — gel ve yürü." },
+    { title:"Gimme! Gimme! Gimme!", artist:"ABBA", note:"Yağmurlu yürüyüşleri bile sinematik hissettiren disko klasiği." },
+    { title:"Cruel Summer", artist:"Taylor Swift", note:"O yaz enerjisi — yürüyüşü tatile dönüştürür." },
+  ],
+  4: [ // Dinlenme Kaseti
+    { title:"Gymnopédie No.1", artist:"Erik Satie", note:"Şimdiye kadar bestelenmiş en mükemmel dinlenme atmosferi." },
+    { title:"Benim Ol", artist:"Sıla", note:"Sıla'nın o sesi — düşünürken arka planda mükemmel." },
+    { title:"Experience", artist:"Ludovico Einaudi", note:"Geniş ve nazik — kitap ve müzik birlikte nefes alıyor." },
+    { title:"Dön", artist:"Teoman", note:"Teoman'ın melankolik melodisi okurken sizi sarar." },
+    { title:"Comptine d'un autre été", artist:"Yann Tiersen", note:"Amélie'nin piyanosu — zihninde bir pencere açar." },
+    { title:"Ağlamak Güzeldir", artist:"Sezen Aksu", note:"Kökü çok derinlerde bir şarkı — sakin bir öğleden sonra için." },
+    { title:"Clair de Lune", artist:"Claude Debussy", note:"En sevilen piyano parçası — zamansız dinlenme arkadaşı." },
+    { title:"On the Nature of Daylight", artist:"Max Richter", note:"Sinematik ve derin — dinlenirken film izler gibi hissediyorsun." },
+    { title:"Sevmek", artist:"Sıla", note:"Hafif, nazik ve huzurlu — tam bir öğleden sonra şarkısı." },
+    { title:"Re:Stacks", artist:"Bon Iver", note:"Katmanlı ve düşünceli — okuyan zihinler için düşünme müziği." },
+    { title:"Nuvole Bianche", artist:"Ludovico Einaudi", note:"Zihin için beyaz bulutlar — saf odaklanma, saf huzur." },
+    { title:"Seni Sevmek", artist:"Teoman", note:"Teoman'ın en kırılgan anlarından biri — dingin bir gün için." },
+  ],
+  5: [ // Yağmurlu Gün Kaseti
+    { title:"Yağmur", artist:"Sezen Aksu", note:"Sezen ve yağmur — ikisi de birbirini çok iyi anlıyor." },
+    { title:"Apocalypse", artist:"Cigarettes After Sex", note:"Rüya gibi yavaş — yağmur onu daha da güzelleştiriyor." },
+    { title:"Hayır", artist:"Sıla", note:"Bulutlu bir öğleden sonra için tam isabet — içten ve kırılgan." },
+    { title:"The Night We Met", artist:"Lord Huron", note:"Acı derecede güzel — penceredeki yağmur buna çok yakışıyor." },
+    { title:"Ağlatır mısın", artist:"Teoman", note:"Teoman'ın yağmurlu günlerin sesi olduğunu kabul etmeli." },
+    { title:"Liability", artist:"Lorde", note:"Acı derecede dürüst ve samimi — yağmurlu yalnız bir öğleden sonra için." },
+    { title:"A Case of You", artist:"Joni Mitchell", note:"Gri gökyüzü ve sıcak eller için zamansız tatlı-acı melankoli." },
+    { title:"Sensiz Olmaz", artist:"Sıla", note:"Yağmurda pencereden bakarken dinlemek için yapılmış." },
+    { title:"Coffee", artist:"beabadoobee", note:"Lo-fi sıcaklık ve nostalji — gri gün bir şarkıda." },
+    { title:"Yağmur Çiçekleri", artist:"Sezen Aksu", note:"Sezen'in yağmurla dansı — her dinleyişte farklı hissettiriyor." },
+    { title:"Strange", artist:"Celeste", note:"Yağmur üzerinde kadife ses — inanılmaz derecede hüzünlü." },
+    { title:"Falling", artist:"Harry Styles", note:"Savunmasız ve arayış içinde — yağmurlu bir günde tam evinde." },
+    { title:"cardigan", artist:"Taylor Swift", note:"Yağmurlu camın önünde, battaniyeyle dinlenmelik nostaljik bir pop parçası." },
+  ],
+  6: [ // Sır Kaseti
+    { title:"Gülümse", artist:"Hande Yener", note:"Her şey ne kadar ağır olursa olsun — bu şarkı hafifletiyor." },
+    { title:"Fix You", artist:"Coldplay", note:"Şimdiye kadar yazılmış en derinden teselli eden şarkılardan biri." },
+    { title:"Hayatımın Anlamı", artist:"Sezen Aksu", note:"Sezen'in en güçlü şarkılarından — ruhun derinliklerine ulaşıyor." },
+    { title:"The Scientist", artist:"Coldplay", note:"O piyano ve o sözler — özrün yetmediği anlarda." },
+    { title:"Öyle Bir Geçer Zaman Ki", artist:"Teoman", note:"Zamanın geçişini bu kadar güzel anlatan başka şarkı yok." },
+    { title:"Let It Be", artist:"The Beatles", note:"Her şeyin çok ağır göründüğü anlar için zamansız bir bilgelik." },
+    { title:"Hadi Bakalım", artist:"Sıla", note:"Sıla'nın o sesi — her şeyden sonra ayağa kalkmak için." },
+    { title:"Hallelujah", artist:"Jeff Buckley", note:"Kutsal bir şarkının nihai versiyonu — her seferinde titretiyor." },
+    { title:"Aşk Tesadüfleri Sever", artist:"Sezen Aksu", note:"Hayatın tesadüflerine teslim olan bu şarkı — özel anlarda çal." },
+    { title:"Back to Black", artist:"Amy Winehouse", note:"Yıkıcı ve muhteşem — Amy en saf halinde." },
+    { title:"Yanlışsam Söyle", artist:"Teoman", note:"Sormak için cesaret istiyor — tam da bu kasete yakışıyor." },
+    { title:"Mad World", artist:"Gary Jules", note:"Seyrek, acı, güzel — dünya çok gürültülü geldiğinde." },
+    { title:"All Too Well (10 Min)", artist:"Taylor Swift", note:"Duygusal derinliğiyle efsaneleşmiş — bir defaya mahsus tam dikkatle dinle." },
+    { title:"Aşkın Var Olsun", artist:"Hande Yener", note:"Hande'nin en kırılgan anlarından — kalp şarkısı." },
+  ],
+};
+
+const CASSETTES = [
+  { id:1, label:"Sabah Kaseti", color:"#e8c547", stripeColor:"#c9a832", description:"Güne mükemmel bir başlangıç", unlocksAt:null },
+  { id:2, label:"Gece Düşünceleri", color:"#7b6cf6", stripeColor:"#5a4dd4", description:"Lamba altında derin düşünceler", unlocksAt:null },
+  { id:3, label:"Yürüyüş Kaseti", color:"#4ecb71", stripeColor:"#38a857", description:"Kulaklıkları tak, yürümeye başla", unlocksAt:null },
+  { id:4, label:"Dinlenme Kaseti", color:"#e07b54", stripeColor:"#c46040", description:"Sayfalar arasında kaybolmak için", unlocksAt:null },
+  { id:5, label:"Yağmurlu Gün Kaseti", color:"#5dade2", stripeColor:"#3498db", description:"Gri gökyüzü ve sıcak kahve için", unlocksAt:null },
+  { id:6, label:"Sır Kaseti", color:"#c0392b", stripeColor:"#962d22", description:"Doğru an için saklandı...", unlocksAt:null, lockedMessage:"Bu kaseti yılbaşı sabahı 10:00'da aç. O zamana kadar — sabırla bekle. 🎉" },
+];
+
+function pickSongs(cassetteId, excludeTitles=[]) {
+  const pool = SONG_POOLS[cassetteId] || [];
+  let available = pool.filter(s => !excludeTitles.includes(s.title));
+  if(available.length < 4) available = pool;
+  const shuffled = [...available].sort(()=>Math.random()-0.5);
+  return shuffled.slice(0,4).map(s=>({...s, youtubeSearch:`${s.title} ${s.artist}`}));
+}
+
+function CassetteBody({cassette,isPlaying,onClick,isLocked}){
+  const [wobble,setWobble]=useState(false);
+  return (
+    <div onClick={()=>{if(!isLocked){setWobble(true);setTimeout(()=>setWobble(false),600);}onClick();}}
+      title={cassette.description}
+      style={{position:"relative",width:"220px",height:"144px",backgroundColor:isLocked?"#2e2e2e":cassette.color,borderRadius:"10px",cursor:isLocked?"not-allowed":"pointer",
+        boxShadow:isPlaying?`0 0 32px ${cassette.color}aa,0 10px 28px rgba(0,0,0,0.7)`:"0 6px 22px rgba(0,0,0,0.55)",
+        transition:"all 0.3s ease",
+        transform:wobble?"rotate(-2deg) scale(1.06)":isPlaying?"scale(1.08)":"scale(1)",
+        filter:isLocked?"grayscale(90%) brightness(0.55)":"none",userSelect:"none",overflow:"hidden"}}
+    >
+      {[0,1].map(i=><div key={i} style={{position:"absolute",top:i===0?"9px":"auto",bottom:i===1?"9px":"auto",left:0,right:0,height:"6px",backgroundColor:isLocked?"#444":cassette.stripeColor}}/>)}
+      <div style={{position:"absolute",top:"23px",left:"50%",transform:"translateX(-50%)",width:"130px",height:"56px",backgroundColor:"rgba(0,0,0,0.38)",borderRadius:"5px",border:"2px solid rgba(255,255,255,0.12)",display:"flex",alignItems:"center",justifyContent:"space-around",padding:"0 12px"}}>
+        {[0,1].map(i=>(
+          <div key={i} style={{width:"30px",height:"30px",borderRadius:"50%",border:"3px solid rgba(255,255,255,0.55)",display:"flex",alignItems:"center",justifyContent:"center",animation:isPlaying?`spin ${i===0?"2s":"2.5s"} linear infinite`:"none"}}>
+            <div style={{width:"7px",height:"7px",borderRadius:"50%",backgroundColor:"rgba(255,255,255,0.75)"}}/>
+          </div>
+        ))}
+      </div>
+      <div style={{position:"absolute",bottom:"18px",left:"10px",right:"10px",backgroundColor:"rgba(255,255,255,0.93)",borderRadius:"4px",padding:"3px 6px",textAlign:"center"}}>
+        <div style={{fontSize:"10px",fontWeight:"bold",color:"#1a1a1a",letterSpacing:"0.5px",textTransform:"uppercase"}}>
+          {isLocked?"🔒 KİLİTLİ":cassette.label}
+        </div>
+        <div style={{fontSize:"8px",color:"#555",marginTop:"1px"}}>{cassette.description}</div>
+      </div>
+      {isPlaying&&<div style={{position:"absolute",top:"7px",right:"10px",width:"8px",height:"8px",borderRadius:"50%",backgroundColor:"#ff3333",animation:"blink 1s ease-in-out infinite"}}/>}
+    </div>
+  );
+}
+
+function SongCard({song,cassette,isActive,onClick}){
+  const [expanded,setExpanded]=useState(false);
+  return (
+    <div style={{backgroundColor:isActive?`${cassette.color}1e`:"rgba(255,255,255,0.04)",border:`1px solid ${isActive?cassette.color+"66":"rgba(255,255,255,0.1)"}`,borderRadius:"12px",padding:"16px 18px",marginBottom:"11px",transition:"all 0.25s ease",animation:"fadeIn 0.4s ease"}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <div onClick={onClick} style={{cursor:"pointer",flex:1}}>
+          <div style={{fontSize:"16px",fontWeight:"600",color:isActive?cassette.color:"#e8e8e8",fontFamily:"'Courier New',monospace"}}>{isActive?"▶ ":"○ "}{song.title}</div>
+          <div style={{fontSize:"13px",color:"#777",marginTop:"3px"}}>{song.artist}</div>
+        </div>
+        <div style={{display:"flex",gap:"8px",marginLeft:"12px"}}>
+          <button onClick={()=>setExpanded(v=>!v)} style={{background:"rgba(255,255,255,0.07)",border:"1px solid rgba(255,255,255,0.13)",borderRadius:"7px",color:"#bbb",cursor:"pointer",fontSize:"15px",padding:"5px 10px"}}>💌</button>
+          <a href={`https://www.youtube.com/results?search_query=${encodeURIComponent(song.youtubeSearch)}`} target="_blank" rel="noopener noreferrer" style={{background:"rgba(255,60,60,0.18)",border:"1px solid rgba(255,80,80,0.28)",borderRadius:"7px",color:"#ff8080",fontSize:"15px",padding:"5px 10px",textDecoration:"none",display:"flex",alignItems:"center"}}>▶</a>
+        </div>
+      </div>
+      {expanded&&(
+        <div style={{marginTop:"12px",padding:"13px 15px",backgroundColor:"rgba(255,255,255,0.05)",borderRadius:"9px",borderLeft:`3px solid ${cassette.color}`,fontFamily:"Georgia,serif",fontSize:"13.5px",lineHeight:"1.7",color:"#ccc",fontStyle:"italic",animation:"fadeIn 0.3s ease"}}>
+          <div style={{marginBottom:"6px",color:"#888",fontSize:"11px",fontStyle:"normal",fontFamily:"monospace"}}>— Kişisel Not —</div>
+          {song.note}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function App(){
+  const [phase,setPhase]=useState("mood");
+  const [selectedMood,setSelectedMood]=useState(null);
+  const [activeCassette,setActiveCassette]=useState(null);
+  const [activeSong,setActiveSong]=useState(null);
+  const [songs,setSongs]=useState([]);
+  const [lockedMsg,setLockedMsg]=useState(null);
+  const lastShownRef=useRef({});
+  const [now]=useState(new Date());
+
+  const isLocked=(c)=>c.unlocksAt&&now<new Date(c.unlocksAt);
+
+  const loadSongs=(cassette)=>{
+    const prev=lastShownRef.current[cassette.id]||[];
+    const picked=pickSongs(cassette.id,prev);
+    lastShownRef.current[cassette.id]=picked.map(s=>s.title);
+    setSongs(picked);
+    setActiveSong(picked[0]||null);
+  };
+
+  const handleClick=(c)=>{
+    if(isLocked(c)){setLockedMsg(c.lockedMessage);return;}
+    setLockedMsg(null);
+    if(activeCassette?.id===c.id){setActiveCassette(null);setSongs([]);setActiveSong(null);return;}
+    setActiveCassette(c);
+    loadSongs(c);
+  };
+
+  const moods=[
+    {label:"Mutlu & Enerjik ☀️",value:"energetic"},
+    {label:"Sakin & Düşünceli 🌙",value:"calm"},
+    {label:"Nostaljik 🍂",value:"nostalgic"},
+    {label:"Melankolik 🌧️",value:"melancholic"},
+    {label:"Umutlu 🌱",value:"hopeful"},
+    {label:"Neşeli 😊",value:"joyful"},
+  ];
+
+  if(phase==="mood") return (
+    <div style={{minHeight:"100vh",backgroundColor:"transparent",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"40px 20px",fontFamily:"'Courier New',monospace"}}>
+      <div style={{fontSize:"54px",marginBottom:"20px",animation:"float 4s ease-in-out infinite"}}>📼</div>
+      <h1 style={{color:"#f0f0f0",fontSize:"clamp(22px,5vw,32px)",fontWeight:"bold",textAlign:"center",letterSpacing:"3px",marginBottom:"12px"}}>PINARIN MÜZİK ARŞİVİ</h1>
+      <p style={{color:"#555",fontSize:"15px",textAlign:"center",marginBottom:"40px",maxWidth:"320px",lineHeight:"1.8",whiteSpace:"pre-line"}}>{"Kasetlerin seni bekliyor.\nAma önce söyle —"}</p>
+      <h2 style={{color:"#999",fontSize:"15px",marginBottom:"24px",letterSpacing:"3px",textTransform:"uppercase"}}>Şu an nasıl hissediyorsun?</h2>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:"12px",maxWidth:"420px",width:"100%",marginBottom:"32px"}}>
+        {moods.map(m=>(
+          <button key={m.value} onClick={()=>setSelectedMood(m.value)} style={{backgroundColor:selectedMood===m.value?"#f0f0f0":"rgba(255,255,255,0.05)",color:selectedMood===m.value?"#0c0c0c":"#bbb",border:`1px solid ${selectedMood===m.value?"#f0f0f0":"rgba(255,255,255,0.12)"}`,borderRadius:"12px",padding:"14px 10px",fontSize:"15px",cursor:"pointer",transition:"all 0.2s ease",fontFamily:"'Courier New',monospace"}}>
+            {m.label}
+          </button>
+        ))}
+      </div>
+      <button onClick={()=>setPhase("main")} disabled={!selectedMood} style={{backgroundColor:selectedMood?"#f0f0f0":"#222",color:selectedMood?"#0c0c0c":"#555",border:"none",borderRadius:"12px",padding:"15px 44px",fontSize:"15px",fontWeight:"bold",cursor:selectedMood?"pointer":"not-allowed",letterSpacing:"2px",fontFamily:"'Courier New',monospace",transition:"all 0.3s ease"}}>
+        KASETLERİ AÇ →
+      </button>
+    </div>
+  );
+
+  return (
+    <div style={{minHeight:"100vh",backgroundColor:"transparent",color:"#eee",fontFamily:"'Courier New',monospace",padding:"30px 22px 80px",maxWidth:"760px",margin:"0 auto"}}>
+      <div style={{textAlign:"center",marginBottom:"30px",animation:"fadeIn 0.5s ease"}}>
+        <div style={{fontSize:"38px",marginBottom:"10px"}}>📼</div>
+        <h1 style={{fontSize:"clamp(18px,4vw,26px)",letterSpacing:"3px",color:"#f0f0f0",marginBottom:"8px"}}>PINARIN MÜZİK ARŞİVİ</h1>
+        <p style={{color:"#454545",fontSize:"13px",marginBottom:"12px"}}>Sana özel seçilmiş kasetler ✦</p>
+        <button onClick={()=>{setPhase("mood");setActiveCassette(null);setLockedMsg(null);setSongs([]);}} style={{background:"none",border:"1px solid #2a2a2a",color:"#555",borderRadius:"7px",padding:"5px 14px",fontSize:"13px",cursor:"pointer",fontFamily:"'Courier New',monospace"}}>
+          ← Ruh halini değiştir
+        </button>
+      </div>
+
+      {lockedMsg&&<div style={{backgroundColor:"rgba(192,57,43,0.12)",border:"1px solid rgba(192,57,43,0.35)",borderRadius:"11px",padding:"14px 18px",marginBottom:"22px",fontSize:"14px",color:"#e08080",lineHeight:"1.65",animation:"fadeIn 0.3s ease"}}>🔒 {lockedMsg}</div>}
+
+      <div style={{display:"flex",flexWrap:"wrap",gap:"20px",justifyContent:"center",marginBottom:"32px"}}>
+        {CASSETTES.map(c=>(
+          <div key={c.id} style={{animation:"fadeIn 0.5s ease"}}>
+            <CassetteBody cassette={c} isPlaying={activeCassette?.id===c.id} onClick={()=>handleClick(c)} isLocked={isLocked(c)}/>
+          </div>
+        ))}
+      </div>
+
+      {activeCassette&&(
+        <div style={{animation:"fadeIn 0.4s ease",backgroundColor:"rgba(255,255,255,0.025)",border:`1px solid ${activeCassette.color}2e`,borderRadius:"16px",padding:"22px"}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"18px"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"12px"}}>
+              <div style={{width:"11px",height:"11px",borderRadius:"50%",backgroundColor:activeCassette.color,animation:"blink 1.5s ease-in-out infinite",flexShrink:0}}/>
+              <h2 style={{margin:0,fontSize:"17px",color:activeCassette.color,letterSpacing:"2px",textTransform:"uppercase"}}>{activeCassette.label}</h2>
+            </div>
+            <button onClick={()=>loadSongs(activeCassette)} style={{background:"rgba(255,255,255,0.06)",border:`1px solid ${activeCassette.color}44`,borderRadius:"8px",color:activeCassette.color,cursor:"pointer",fontSize:"13px",padding:"6px 14px",fontFamily:"'Courier New',monospace"}}>
+              🔀 Yeni şarkılar
+            </button>
+          </div>
+          {songs.map((song,i)=>(
+            <SongCard key={song.title+i} song={song} cassette={activeCassette} isActive={activeSong?.title===song.title} onClick={()=>setActiveSong(song)}/>
+          ))}
+          <p style={{color:"#333",fontSize:"12px",textAlign:"center",marginTop:"16px"}}>💌 kişisel not için tıkla  •  ▶ YouTube'da ara</p>
+        </div>
+      )}
+      {!activeCassette&&<p style={{textAlign:"center",color:"#333",fontSize:"13px",marginTop:"12px"}}>Bir kasete tıkla ↑</p>}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+
+</body>
+</html>
